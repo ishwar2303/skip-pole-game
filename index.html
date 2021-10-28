@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://kit.fontawesome.com/196c90f518.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="curr-score">0</div>
+    <div class="wrapper" style="height:100vh;">
+        <div id="play-and-score-container" class="flex-row flex-1">
+            <div class="">
+                <button id="play-btn" class="flex-row align-center justify-center white">
+                    <i class="fas fa-play mr-20"></i> Play
+                </button>
+            </div>
+            <div class="flex-col justify-center align-center">
+                <div id="score-card" class="white">
+                    <div class="flex-col align-center">
+                        <h3 id="score-card-heading" class="flex-row">
+                            <div>Highscore</div> 
+                            <div id="high-score" class="flex-row center ml-20">0</div>
+                        </h3>
+                        
+                        <h3 class="flex-row mt-20">
+                            <div>Your Score</div>
+                            <div id="your-score" class="ml-20">0</div>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bird"></div>
+        <div id="touch-plate"></div>
+
+        <div id="pole-slide" class="flex-row"></div>
+    </div>
+    <div id="overlay"></div>
+    <script src="main.js"></script>
+</body>
+</html>
