@@ -1,15 +1,20 @@
-var birdY
+var ballY
+var coordinates = []
 var dropInterval
+var poleSlideInterval
+var collisionInterval
+var poleSlideSpeed
+var ballRelativeX 
 var bodyHeight = document.body.offsetHeight
 var bodyWidth = document.body.offsetWidth
 var poleRef = bodyWidth + 100
-var coordinates = []
-var poleSlideInterval
 var polePass = 1
-var birdRelativeX 
 var highScore = 0
-var poleSlideSpeed
-var poleGap = 250
+var poleWidth = 50 // 100
+var poleGap = 300 // 250
+var poleDesignWidth = 60 // 110
+var poleSeparation = 350 // 300
+var noOfPoles = 50
 
 const scoreBlock = document.getElementById('high-score')
 const currScore = document.getElementById('curr-score')
@@ -19,7 +24,7 @@ const playContainerOption = document.getElementById('play-and-score-container')
 const poleSlide = document.getElementById('pole-slide')
 const overlay = document.getElementById('overlay')
 const touch = document.getElementById('touch-plate')
-const bird  = document.getElementById('bird')
+const ball  = document.getElementById('ball')
 
 playBtn.addEventListener('click', () => {
     start()
@@ -28,33 +33,48 @@ playBtn.addEventListener('click', () => {
 const start = () => {
     clearInterval(poleSlideInterval)
     poleGap = 250
-    poleSlideSpeed = 7
+    poleSlideSpeed = 5
     polePass = 1
     poleRef = bodyWidth + 100
     currScore.innerText = 0
     coordinates = []
-    bird.style.display = 'block'
+    ball.style.display = 'block'
     overlay.style.display = 'none'
     playContainerOption.style.display = 'none'
-    bird.style.background = 'linear-gradient(45deg, black, #3333cdad)'
-    bird.style.top = bodyHeight/2 - 25 + 'px'
-    bird.style.left = bodyWidth/2  + 'px'
-    birdY = bodyHeight/2 - 25
-    birdRelativeX = bodyWidth/2
+    ball.style.background = 'linear-gradient(45deg, black, #3333cdad)'
+    ball.style.top = bodyHeight/2 - 25 + 'px'
+    ball.style.left = bodyWidth/2  + 'px'
+    ballY = bodyHeight/2 - 25
+    ballRelativeX = bodyWidth/2
     poleSlide.innerHTML = ''
     poleSlide.style.left = '0'
     let div = document.createElement('div')
     div.style.width = bodyWidth + 100 + 'px'
     div.style.height = '100%'
     poleSlide.appendChild(div)
-    for(let i=1; i<=100; i++) {
+    for(let i=1; i<=noOfPoles; i++) {
         createPole(i)
     }
+    addTheEnd()
     poleSlideInterval = setInterval(() => {
         movePoleSlide(true)
     }, poleSlideSpeed)
-    dropInterval = setInterval(dropBird, 0.5)
+    dropInterval = setInterval(dropball, 0.5)
+    // collisionInterval = setInterval(checkCollision, 1)
 } 
+
+const addTheEnd = () => {
+    let div = document.createElement('div')
+    div.className = 'flex-row justify-center align-start'
+    div.style.paddingTop = '50px'
+    div.style.width = '400px'
+    div.style.height = '100%'
+    let h1 = document.createElement('h1')
+    h1.innerText = 'The End'
+    h1.className = 'the-end'
+    div.appendChild(h1)
+    poleSlide.appendChild(div)
+}
 
 const restart = () => {
     playContainerOption.style.display = 'flex'
@@ -62,31 +82,37 @@ const restart = () => {
 const addTouch = () => {
     touch.addEventListener('click', () => {
         for(let i=1; i<=120; i++) {
-            setTimeout(flyBird, i)
+            setTimeout(flyball, i)
         }
     })
 }
 addTouch()
-const flyBird = () => {
-    if(birdY <= 0)
+const flyball = () => {
+    if(ballY <= 0)
         return
-    birdY -= 1.5
-    bird.style.top = birdY + 'px'
+    ballY -= 1.5
+    ball.style.top = ballY + 'px'
     
 }
-const dropBird = () => {
-    birdY += 1.8
-    bird.style.top = birdY + 'px'
-    if(birdY >= bodyHeight - 25) {
+const dropball = () => {
+    ballY += 1.8
+    ball.style.top = ballY + 'px'
+    if(ballY >= bodyHeight - 25) {
         gameOver()
     }
 }
-const gameOver = () => {
-    dieBird()
+
+const gameOver = (slideCloseTimer) => {
+    dieball()
     var au = new Audio('break.mp3')
     au.play()
     clearInterval(dropInterval)
-    clearInterval(poleSlideInterval)
+    clearInterval(collisionInterval)
+    if(!slideCloseTimer)
+        clearInterval(poleSlideInterval)
+    else setTimeout(() => {
+        clearInterval(poleSlideInterval)
+    }, slideCloseTimer)
     playContainerOption.style.display = 'flex'
     overlay.style.display = 'block'
 }
@@ -99,8 +125,8 @@ const movePoleSlide = (gameTrue) => {
         pos -= 2
     }
     if(gameTrue) {  
-        birdRelativeX += 2
         checkCollision()
+        ballRelativeX += 2
     }
     poleSlide.style.left = pos + 'px'
 }
@@ -121,15 +147,15 @@ const createPole = (poleNum) => {
         }
     }
     points.startX = poleRef
-    points.endX   = poleRef + 100 // for pole
-    poleRef += poleGap + 100
+    points.endX   = poleRef + poleWidth // for pole
+    poleRef += poleGap + poleWidth
 
-    let availableHeight = bodyHeight - 300
+    let availableHeight = bodyHeight - poleSeparation
     let breakRatio = Math.random().toFixed(1)*100
     let poleContainer = document.createElement('div')
     poleContainer.className = 'pole-container'
     poleContainer.style.height = '100%'
-    poleContainer.style.width = '100px'
+    poleContainer.style.width = poleWidth + 'px'
     poleContainer.style.position = 'relative'
     let div = document.createElement('div')
     let temp = breakRatio*availableHeight/100
@@ -141,6 +167,7 @@ const createPole = (poleNum) => {
         div.className += ' golden-design'
     var divDesign = document.createElement('div')
     divDesign.className = 'div-design-upper'
+    divDesign.style.width = poleDesignWidth + 'px'
     if(highScore == poleNum)
         divDesign.className += ' golden-design'
     div.appendChild(divDesign)
@@ -155,6 +182,7 @@ const createPole = (poleNum) => {
         div.className += ' golden-design'
     divDesign = document.createElement('div')
     divDesign.className = 'div-design-lower'
+    divDesign.style.width = poleDesignWidth + 'px'
     if(highScore == poleNum)
         divDesign.className += ' golden-design'
     div.appendChild(divDesign)
@@ -167,29 +195,32 @@ const createPole = (poleNum) => {
     coordinates.push(points)
 }
 const checkCollision = () => {
-    if(polePass == 100) {
-        gameOver()
+    if(polePass == noOfPoles + 1) {
+        yourScore.innerText = polePass - 1
+        updateScore(polePass-1)
+        gameOver(3000)
+        return;
     }
     if(polePass%5 == 0) {
-        poleSlideSpeed -= 0.002
+        poleSlideSpeed -= 0.001
         clearInterval(poleSlideInterval)
         poleSlideInterval = setInterval(() => {
             movePoleSlide(true)
         }, poleSlideSpeed)
     }
-    let tempBirdY = bird.offsetTop
+    let tempballY = ball.offsetTop
     let xAxis = coordinates[polePass-1].startX
     let upperStartY = coordinates[polePass-1].upper.startY
     let upperEndY   = coordinates[polePass-1].upper.endY + 45
     let lowerStartY = coordinates[polePass-1].lower.startY - 45
     let lowerEndY   = coordinates[polePass-1].lower.endY
-    if(birdRelativeX >= xAxis && (tempBirdY <= upperEndY || tempBirdY >= lowerStartY)) { // pole start
+    if(ballRelativeX >= xAxis && (tempballY <= upperEndY || tempballY >= lowerStartY)) { // pole start
         yourScore.innerText = polePass - 1
         updateScore(polePass-1)
         gameOver()
     }
 
-    if(birdRelativeX > xAxis + 100) { // pole pass
+    if(ballRelativeX > xAxis + 100) { // pole pass
         currScore.innerText = polePass
         polePass++;
         var au = new Audio('pole-cross-tune.mp3')
@@ -225,8 +256,8 @@ const resetHighscore = () => {
 }
 
 
-const dieBird = () => {
-    bird.style.background = 'linear-gradient(45deg, black, red)'
+const dieball = () => {
+    ball.style.background = 'linear-gradient(45deg, black, red)'
 }
 
 document.addEventListener('keyup', (e) => {
@@ -235,15 +266,17 @@ document.addEventListener('keyup', (e) => {
     }
     if(e.keyCode == 32) {
         for(let i=1; i<=120; i++) {
-            setTimeout(flyBird, i)
+            setTimeout(flyball, i)
         }
     }
 })
 
 
-for(let i=1; i<=100; i++) {
+
+for(let i=1; i<=noOfPoles; i++) {
     createPole()
 }
+addTheEnd()
 poleSlideInterval = setInterval(() => {
     movePoleSlide(false)
 }, 5)
