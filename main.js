@@ -8,6 +8,8 @@ var poleSlideInterval
 var polePass = 1
 var birdRelativeX 
 var highScore = 0
+var poleSlideSpeed
+var poleGap = 250
 
 const scoreBlock = document.getElementById('high-score')
 const currScore = document.getElementById('curr-score')
@@ -24,19 +26,21 @@ playBtn.addEventListener('click', () => {
 })
 
 const start = () => {
-    coordinates = []
-    bird.style.display = 'block'
     clearInterval(poleSlideInterval)
+    poleGap = 250
+    poleSlideSpeed = 7
     polePass = 1
-    overlay.style.display = 'none'
     poleRef = bodyWidth + 100
     currScore.innerText = 0
+    coordinates = []
+    bird.style.display = 'block'
+    overlay.style.display = 'none'
+    playContainerOption.style.display = 'none'
+    bird.style.background = 'linear-gradient(45deg, black, #3333cdad)'
     bird.style.top = bodyHeight/2 - 25 + 'px'
     bird.style.left = bodyWidth/2  + 'px'
     birdY = bodyHeight/2 - 25
     birdRelativeX = bodyWidth/2
-    dropInterval = setInterval(dropBird, 0.5)
-    playContainerOption.style.display = 'none'
     poleSlide.innerHTML = ''
     poleSlide.style.left = '0'
     let div = document.createElement('div')
@@ -48,7 +52,8 @@ const start = () => {
     }
     poleSlideInterval = setInterval(() => {
         movePoleSlide(true)
-    }, 7)
+    }, poleSlideSpeed)
+    dropInterval = setInterval(dropBird, 0.5)
 } 
 
 const restart = () => {
@@ -77,6 +82,7 @@ const dropBird = () => {
     }
 }
 const gameOver = () => {
+    dieBird()
     var au = new Audio('break.mp3')
     au.play()
     clearInterval(dropInterval)
@@ -101,6 +107,8 @@ const movePoleSlide = (gameTrue) => {
 
 const createPole = (poleNum) => {
 
+    if(poleNum%5 == 0 && poleNum != 0)
+        poleGap += 10
     let points = {
         startX: '',
         upper: {
@@ -113,8 +121,8 @@ const createPole = (poleNum) => {
         }
     }
     points.startX = poleRef
-    points.endX   = poleRef + 100
-    poleRef += 350
+    points.endX   = poleRef + 100 // for pole
+    poleRef += poleGap + 100
 
     let availableHeight = bodyHeight - 300
     let breakRatio = Math.random().toFixed(1)*100
@@ -153,7 +161,7 @@ const createPole = (poleNum) => {
     poleContainer.appendChild(div)
     poleSlide.appendChild(poleContainer)
     let margin = document.createElement('div')
-    margin.style.width = '250px'
+    margin.style.width = poleGap + 'px'
     poleSlide.appendChild(margin)
 
     coordinates.push(points)
@@ -161,6 +169,13 @@ const createPole = (poleNum) => {
 const checkCollision = () => {
     if(polePass == 100) {
         gameOver()
+    }
+    if(polePass%5 == 0) {
+        poleSlideSpeed -= 0.002
+        clearInterval(poleSlideInterval)
+        poleSlideInterval = setInterval(() => {
+            movePoleSlide(true)
+        }, poleSlideSpeed)
     }
     let tempBirdY = bird.offsetTop
     let xAxis = coordinates[polePass-1].startX
@@ -183,7 +198,7 @@ const checkCollision = () => {
 }
 
 const highscore = () => {
-    let score = localStorage.getItem('pass-ball-highscore')
+    let score = localStorage.getItem('pole-pass-highscore')
     if(!score)
         score = 0
     else {
@@ -195,10 +210,10 @@ const highscore = () => {
 highscore()
 
 const updateScore = (newScore) => {
-    let score = localStorage.getItem('pass-ball-highscore')
+    let score = localStorage.getItem('pole-pass-highscore')
     if(score >= 0) {
         if(score < newScore) {
-            localStorage.setItem('pass-ball-highscore', newScore)
+            localStorage.setItem('pole-pass-highscore', newScore)
             scoreBlock.innerText = newScore
             highScore = newScore
         }
@@ -206,7 +221,12 @@ const updateScore = (newScore) => {
 }
 
 const resetHighscore = () => {
-    localStorage.setItem('pass-ball-highscore', 0)
+    localStorage.setItem('pole-pass-highscore', 0)
+}
+
+
+const dieBird = () => {
+    bird.style.background = 'linear-gradient(45deg, black, red)'
 }
 
 document.addEventListener('keyup', (e) => {

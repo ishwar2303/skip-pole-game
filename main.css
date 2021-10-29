@@ -278,20 +278,20 @@ input:focus, textarea:focus, button:focus {
 .div-design-upper {
     position: absolute;
     bottom: -25px;
-    width: 120px;
+    width: 110px;
     height: 35px;
     background: rgb(18 18 18);
-    transform: translate(-10px);
+    transform: translate(-5px);
     border-radius: 5px;
     box-shadow: -2px 7px 10px 0px rgb(0, 0, 0, 0.5);
 }
 .div-design-lower {
     position: absolute;
     top: -25px;
-    width: 120px;
+    width: 110px;
     height: 35px;
     background: rgb(18 18 18);
-    transform: translate(-10px);
+    transform: translate(-5px);
     border-radius: 5px;
     box-shadow: 2px -7px 10px 0px rgb(0, 0, 0, 0.5);
 }
