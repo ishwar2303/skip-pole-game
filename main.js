@@ -10,9 +10,9 @@ var bodyWidth = document.body.offsetWidth
 var poleRef = bodyWidth + 100
 var polePass = 1
 var highScore = 0
-var poleWidth = 50 // 100
+var poleWidth = 100 // 100
 var poleGap = 300 // 250
-var poleDesignWidth = 60 // 110
+var poleDesignWidth = 110 // 110
 var poleSeparation = 350 // 300
 var noOfPoles = 50
 
